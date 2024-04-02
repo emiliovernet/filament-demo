@@ -18,13 +18,13 @@ class Account extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function transactionsAsSource()
+    public function transfersAsSource()
     {
-        return $this->hasMany(Transaction::class, 'source_account_id');
+        return $this->hasMany(Transfer::class, 'source_account_id');
     }
 
-    public function transactionsAsDestination()
+    public function transfersAsDestination()
     {
-        return $this->hasMany(Transaction::class, 'destination_account_id');
+        return $this->hasMany(Transfer::class, 'destination_account_id');
     }
 }

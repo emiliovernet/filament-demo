@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\{User, Account, Transaction, Category, Product};
+use App\Models\{User, Account, Transfer, Category, Product};
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -14,10 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
-        Account::factory(10)->create();
-        Transaction::factory(10)->create();
-        Category::factory(10)->create();
+        User::factory(2)->create();
+        Account::factory(2)->create();
+        Transfer::factory(10)->create();
+        Category::factory(3)->create();
         Product::factory(10)->create();
 
 

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers;
 use App\Models\Account;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -29,9 +30,9 @@ class AccountResource extends Resource
                 Forms\Components\TextInput::make('balance')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('user_id')
+                Forms\Components\Select::make('user_id')
+                    ->options(User::all()->pluck('name', 'id'))
                     ->required()
-                    ->numeric(),
             ]);
     }
 
@@ -44,7 +45,7 @@ class AccountResource extends Resource
                 Tables\Columns\TextColumn::make('balance')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user_id')
+                Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

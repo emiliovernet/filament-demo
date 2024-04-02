@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Transaction extends Model
+class Transfer extends Model
 {
     use HasFactory;
     
@@ -16,9 +16,9 @@ class Transaction extends Model
 
     protected static function booted()
     {
-        static::creating(function ($transaction) {
-            $transaction->sourceAccount->decrement('balance', $transaction->amount);
-            $transaction->destinationAccount->increment('balance', $transaction->amount);
+        static::creating(function ($transfer) {
+            $transfer->sourceAccount->decrement('balance', $transfer->amount);
+            $transfer->destinationAccount->increment('balance', $transfer->amount);
         });
     }
 

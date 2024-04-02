@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TransactionResource\Pages;
-use App\Filament\Resources\TransactionResource\RelationManagers;
-use App\Models\Transaction;
+use App\Filament\Resources\TransferResource\Pages;
+use App\Filament\Resources\TransferResource\RelationManagers;
+use App\Models\Transfer;
+use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +14,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class TransactionResource extends Resource
+class TransferResource extends Resource
 {
-    protected static ?string $model = Transaction::class;
+    protected static ?string $model = Transfer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -28,12 +29,12 @@ class TransactionResource extends Resource
                 Forms\Components\TextInput::make('type')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('source_account_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('destination_account_id')
-                    ->required()
-                    ->numeric(),
+                    Forms\Components\Select::make('source_account_id')
+                    ->options(Account::all()->pluck('name', 'id'))
+                    ->required(),
+                    Forms\Components\Select::make('destination_account_id')
+                    ->options(Account::all()->pluck('name', 'id'))
+                    ->required(),
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric(),
@@ -72,7 +73,11 @@ class TransactionResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -86,9 +91,9 @@ class TransactionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTransactions::route('/'),
-            'create' => Pages\CreateTransaction::route('/create'),
-            'edit' => Pages\EditTransaction::route('/{record}/edit'),
+            'index' => Pages\ListTransfers::route('/'),
+            'create' => Pages\CreateTransfer::route('/create'),
+            'edit' => Pages\EditTransfer::route('/{record}/edit'),
         ];
     }
 }
