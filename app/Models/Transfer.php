@@ -20,6 +20,11 @@ class Transfer extends Model
             $transfer->sourceAccount->decrement('balance', $transfer->amount);
             $transfer->destinationAccount->increment('balance', $transfer->amount);
         });
+
+        static::deleting(function ($transfer) {
+            $transfer->sourceAccount->increment('balance', $transfer->amount);
+            $transfer->destinationAccount->decrement('balance', $transfer->amount);
+        });
     }
 
     public function sourceAccount()

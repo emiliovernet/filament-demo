@@ -18,7 +18,14 @@ class AccountResource extends Resource
 {
     protected static ?string $model = Account::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Movements';
+
+    protected static ?string $navigationIcon = 'heroicon-s-building-library';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -31,8 +38,9 @@ class AccountResource extends Resource
                     ->required()
                     ->numeric(),
                 Forms\Components\Select::make('user_id')
-                    ->options(User::all()->pluck('name', 'id'))
-                    ->required()
+                    ->relationship('user', 'name')
+                    ->default(auth()->id())
+                    ->label(__('User'))
             ]);
     }
 
@@ -44,7 +52,8 @@ class AccountResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('balance')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->money('USD'),
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
                     ->sortable(),
@@ -62,6 +71,7 @@ class AccountResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

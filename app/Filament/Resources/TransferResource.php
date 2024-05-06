@@ -6,11 +6,14 @@ use App\Filament\Resources\TransferResource\Pages;
 use App\Filament\Resources\TransferResource\RelationManagers;
 use App\Models\Transfer;
 use App\Models\Account;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -18,22 +21,32 @@ class TransferResource extends Resource
 {
     protected static ?string $model = Transfer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Movements';
+
+    protected static ?string $navigationIcon = 'heroicon-s-currency-dollar';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\DateTimePicker::make('date')
-                    ->required(),
-                Forms\Components\TextInput::make('type')
+                Forms\Components\DatePicker::make('date')
                     ->required()
-                    ->maxLength(255),
-                    Forms\Components\Select::make('source_account_id')
-                    ->options(Account::all()->pluck('name', 'id'))
+                    ->default(now())
+                    ->native(false),
+                Forms\Components\Select::make('type')
+                    ->options([
+                        'transfer' => 'Transfer',
+                        'deposit' => 'Deposit',
+                        'withdraw' => 'Withdraw',
+                    ])
                     ->required(),
-                    Forms\Components\Select::make('destination_account_id')
+                Forms\Components\Select::make('source_account_id')
                     ->options(Account::all()->pluck('name', 'id'))
+                    ->label(__('Source Account'))
+                    ->required(),
+                Forms\Components\Select::make('destination_account_id')
+                    ->options(Account::all()->pluck('name', 'id'))
+                    ->label(__('Destination Account'))
                     ->required(),
                 Forms\Components\TextInput::make('amount')
                     ->required()
@@ -50,35 +63,35 @@ class TransferResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('source_account_id')
+                Tables\Columns\TextColumn::make('sourceAccount.name')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('destination_account_id')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('destinationAccount.name')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
+                    ->money('USD')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('Source Account')
+                ->relationship('sourceAccount', 'name'),
+                SelectFilter::make('Destination Account')
+                ->relationship('destinationAccount', 'name')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('date', 'desc');
     }
 
     public static function getRelations(): array
