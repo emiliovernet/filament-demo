@@ -105,7 +105,6 @@ class TransferResource extends Resource
     {
         return [
             'index' => Pages\ListTransfers::route('/'),
-            'create' => Pages\CreateTransfer::route('/create'),
             'edit' => Pages\EditTransfer::route('/{record}/edit'),
         ];
     }

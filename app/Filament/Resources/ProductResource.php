@@ -6,11 +6,6 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use App\Models\Category;
-use App\Filament\Imports\ProductImporter;
-use Filament\Actions\Imports\Models\Import;
-use Filament\Tables\Actions\ImportAction;
-use App\Filament\Exports\ProductExporter;
-use Filament\Tables\Actions\ExportAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -18,6 +13,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\CreateAction;
+
 
 class ProductResource extends Resource
 {
@@ -62,17 +60,22 @@ class ProductResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make()
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('category_id')
+                            ->options(Category::all()->pluck('name', 'id'))
+                            ->label(__('Category'))
+                            ->required()
+                    ]),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->headerActions([
-                ExportAction::make()
-                    ->exporter(ProductExporter::class)
             ]);
     }
 
@@ -87,8 +90,6 @@ class ProductResource extends Resource
     {
         return [
             'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
 }
